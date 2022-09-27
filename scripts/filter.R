@@ -1,9 +1,6 @@
 library(tidyverse)
-
-data <- read.csv("../data/Butterfly_data.csv")
-
-filter_years <- function(dataset = data){
-  new_data <- data %>%
-    filter(years > 1997)
-  return(new_data)
+data <- read.csv ("../data/weather_stations.csv"){
+      new_data <- data %>%
+        filter(latitude > .500)
+      return(new_data)
 }
