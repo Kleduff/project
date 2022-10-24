@@ -1,0 +1,195 @@
+---
+title: "Project Two"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Due Oct. 21 at 11:59 PM. 
+
+For this first part of the exam, you can either use `surveys_complete.csv` or your own data. If you are using your own data, you must have data in which you think you have a numerical predictor variable and a numerical response variable. If you are using `surveys_complete`, you can use weight and hindfoot_length for this.
+
+Save this file in your `projects` directory. You can either save it in a project two subdirectory, or just put it in projects. Either way is fine.
+
+1) Load in your data. Which variable will you be using as a predictor, and which as a response? (5 pts)
+
+```{r}
+surveys
+# I will be using weight as the predictor variable and hindfoot_length as the response because I believe weight would affect the hindfoot length similar to humans, sometimes our weight affects the size of our arms, neck, etc.
+```
+
+```
+# The weight is the predictor column and the hindfoot length is the response column
+```
+
+2) Plot the two against each other with a scatter plot. Do the data appear to be related linearly? (5 pts)
+
+
+```{r}
+library(ggplot2)
+na.omit(surveys)
+ggplot(data = surveys, mapping = aes(x = weight, y = hindfoot_length, color = sex)) +
+    geom_jitter(alpha = 0.1)
+``
+
+```
+#The data does appear to portray linear regression.
+```
+
+
+3) Fit the linear model. View the summary. (5 pts)
+
+
+```{r}
+
+ggplot(surveys, aes(x = weight, y = hindfoot_length)) + 
+  geom_point()
+model_fit <- lm(weight ~ hindfoot_length, data = surveys)
+summary(model_fit)
+
+```
+
+4) Does the summary make sense when you compare it to the plot you made? Does our model have good predictive power? Evaluate the residual standard error, intercept, and R-Squared in particular. Would you say your predictor predicts the response?  (10 pts)
+
+
+```
+# The summary does seem to make sense although I believe my hypothesis about the data being a linear regression is wrong. The residuals shows us the min, max, and median values which seem to be correct, because the minimum is negative but the lowest, the median is in the middle and the max is the highest, although there is a huge difference in the numbers ranging from very low to very high which could indicate error. Our intercept tells us the expected value of the surveys data set at o in reference too the weight being 0. The number comes out to be -32.89~ 0.477. We can also infer that specimens in the data may have a somewhat large weight and therefore larger hindfoot_length due to their size. R- squared tells us what percentage of hindfoot_length is determined by the weight and the number comes out to be, 46.76% which is less than half and it is now safe to say the data is not linear and the predictors does not have much influence of the response.
+```
+
+
+5) Plot the model on the graph. Increase the size of the text so it is comfortably readable at 5 feet. Make sure axis labels are readable and not overlapping with one another. (5 pts)
+
+```
+ggplot(surveys, aes(x = weight, y = hindfoot_length)) + 
+  geom_point(size = 0.5) +      
+  geom_smooth(method = "lm",     
+              color = "navy",    
+              size = 0.5,        
+              fill = "deeppink4") + 
+  labs(x = "weight (mm)", 
+       y = "hindfoot_length (mm)", 
+       title = "Non linear regression to depict how weight affects hinfoot_length") + 
+  annotate("text",                
+           label = "R^2 == 0.4676", 
+           parse=T,               
+           color = "firebrick", size = 50)  +  
+  theme_bw()
+```
+
+
+6) Check the normality of the residuals. Do they look OK? Are we violating assumptions? (5 pts)
+
+```{r}
+model_fit <- lm(weight ~ hindfoot_length, data = surveys)
+broom::tidy(model_fit)
+broom::glance(model_fit)
+broom::augment(model_fit)
+broom::augment(model_fit) -> augmented_fit
+
+qqnorm(augmented_fit$.resid)
+qqline(augmented_fit$.resid, col = "red")  
+
+#The normality of the residuals do not look okay and it looks like we are violating assumption based on the plot#
+```
+
+Why is normality of residuals important? 
+
+```{r}
+
+#The normality of the residuals are important because they show the relationship of the model in reference to theoretical prediction.
+```
+
+7) If you are using `surveys_complete`: Is there interspecific variation in the linear model? Hint: look at our prior work with facet plots. (15 pts) 
+
+If you are *not* using  `surveys_complete`: Do you think there are groupings within your data that may have a separate linear model? Try grouping the data by that variable and redoing the lm. If this would not make sense for your data, you may also attempt to do multiple predictor variables. (15 pts)
+
+```{r}
+ggplot(data = surveys, 
+       mapping = aes(x = weight, y = hindfoot_length, color = sex)) +
+  geom_line() +
+  facet_grid(rows = vars(sex), cols =  vars(genus))
+  
+#There is interspecific variation in the linear model which I predicted early on because of the huge difference in minimum and maximun values. There is likely more than one species that was measured.
+```
+
+## Part Two
+
+In this portion, you are free to use your own data if you have a categorical predictor variable and a response variable. Otherwise, you may use the columns sex and weight in `surveys_complete`
+
+1) First, plot the data grouped by sex (5 pts)
+
+
+ggplot(data = surveys, 
+       mapping = aes(x = weight, y = hindfoot_length, color = sex)) +
+  geom_line() +
+  facet_grid(cols = vars(sex))
+
+```
+
+2) Try an ANOVA of this data (5 pt)
+
+```{r}
+ggplot(data = surveys, mapping = aes(x = weight, y = sex)) +
+    geom_boxplot()
+```
+
+3) How about a linear model? What information does this give you that an ANOVA can't? (5 pts)
+
+
+```{r}
+library(hexbin)
+surveys_complete <- surveys %>%
+  count(weight, sex)
+ggplot(data = surveys_complete, mapping = aes(x = weight, y = sex)) +
+     geom_line()
+It shows us if our data has linear regression or not.
+```
+#Answer here
+```
+
+3) Plot the lm with the data, with points colored by sex. (10 pts)
+
+
+```{r}
+library(ggplot)
+ggplot(surveys, aes(x = weight, y = hindfoot_length, color = sex))+ geom_point() + stat_smooth(method = "lm") 
+```
+
+4) Choose any model we've looked at so far, but use two predictor variables. Perform an LM, plot the results, and state if this changes your interpretation of the relationship between variables (10 pts)
+
+```{r}
+model_fit <- lm(weight ~ sex, data = surveys)
+summary(model_fit)
+```
+
+```{r}
+ggplot(surveys, aes(x = sex, y = weight, color = sex))+ geom_point() + stat_smooth(method = "lm") 
+```
+
+```
+# This does change the relationship between the interpreation between variables because it seems as if the relationship is linear this time around.
+```
+
+## Part Three
+
+
+1) To commit this document I selected project_two under the git tab and hit command and explained what it was.
+
+(5 pts)
+
+```
+#Commands here
+```
+
+2) Push your changes to github (10 pts)
+
+```
+#Commands here
+```
+
+
+
+# MS students
+
+My expectation is that you'll do this with your own data. If any part of this doesn't make sense with your data, please get in touch ASAP so we can work it out.
+
